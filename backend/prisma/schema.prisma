@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum JourneyStatus {
+  ACTIVE
+  AWAITING_RESPONSE
+  COMPLETED
+  ALERT_SENT
+}
+
+enum AlertType {
+  SOS
+  JOURNEY_NO_RESPONSE
+  USER_REQUESTED
+}
+
+enum AlertStatus {
+  SENT
+  FAILED
+}
+
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  phone        String?
+  passwordHash String
+  createdAt    DateTime  @default(now())
+
+  contacts     Contact[]
+  journeys     Journey[]
+  alerts       Alert[]
+}
+
+model Contact {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  email     String
+  phone     String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Journey {
+  id               String        @id @default(uuid())
+  userId           String
+  destinationLabel String
+  startLat         Float
+  startLng         Float
+  expectedArrival  DateTime
+  status           JourneyStatus @default(ACTIVE)
+  confirmDeadline  DateTime?
+  createdAt        DateTime      @default(now())
+  endedAt          DateTime?
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alerts Alert[]
+
+  @@index([userId])
+  @@index([status, expectedArrival])
+}
+
+model Alert {
+  id         String      @id @default(uuid())
+  userId     String
+  journeyId  String?
+  type       AlertType
+  lat        Float
+  lng        Float
+  mapLink    String
+  message    String
+  recipients Json
+  status     AlertStatus @default(SENT)
+  createdAt  DateTime    @default(now())
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  journey Journey? @relation(fields: [journeyId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+}

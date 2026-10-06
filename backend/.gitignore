@@ -1,0 +1,4 @@
+node_modules
+.env
+prisma/migrations/.migration_lock_temp
+generated/
