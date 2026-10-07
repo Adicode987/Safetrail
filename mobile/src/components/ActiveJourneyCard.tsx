@@ -19,6 +19,7 @@ import {
 import { colors, spacing } from "../theme";
 import { cancelScheduled } from "../notifications";
 import { forgetNotificationId, readNotificationId } from "../store";
+import { getCurrentPosition } from "../location";
 import type { Journey, AlertRecord } from "../types";
 import type { MainStackParamList } from "../navigation";
 
@@ -70,8 +71,18 @@ export function ActiveJourneyCard({ journey }: { journey: Journey }) {
           onPress: async () => {
             setBusy("sending");
             try {
+              const loc = await getCurrentPosition();
+              if (!loc.ok) {
+                Alert.alert("Location needed", loc.message);
+                setBusy(null);
+                return;
+              }
               const result = await sendAlertNow({
-                variables: { journeyId: journey.id },
+                variables: {
+                  journeyId: journey.id,
+                  lat: loc.coords.latitude,
+                  lng: loc.coords.longitude,
+                },
               });
               await cancelNotif();
               const alert = result.data?.sendAlertNow as

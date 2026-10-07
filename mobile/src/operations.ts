@@ -171,8 +171,8 @@ export const CONFIRM_SAFE_MUTATION = gql`
 `;
 
 export const SEND_ALERT_NOW_MUTATION = gql`
-  mutation SendAlertNow($journeyId: ID!) {
-    sendAlertNow(journeyId: $journeyId) {
+  mutation SendAlertNow($journeyId: ID!, $lat: Float!, $lng: Float!) {
+    sendAlertNow(journeyId: $journeyId, lat: $lat, lng: $lng) {
       ${ALERT_FIELDS}
     }
   }

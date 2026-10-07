@@ -96,6 +96,6 @@ export const typeDefs = `
     startJourney(input: StartJourneyInput!): Journey!
     markArrived(journeyId: ID!): Journey!
     confirmSafe(journeyId: ID!): Journey!
-    sendAlertNow(journeyId: ID!): Alert!
+    sendAlertNow(journeyId: ID!, lat: Float!, lng: Float!): Alert!
   }
 `;

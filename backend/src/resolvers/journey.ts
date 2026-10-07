@@ -222,7 +222,7 @@ export const journeyResolvers = {
 
     sendAlertNow: async (
       _: unknown,
-      args: { journeyId: string },
+      args: { journeyId: string; lat: number; lng: number },
       context: Context
     ) => {
       const userId = requireAuth(context);
@@ -264,7 +264,7 @@ export const journeyResolvers = {
         );
       }
 
-      const mapLink = `https://maps.google.com/?q=${journey.startLat},${journey.startLng}`;
+      const mapLink = `https://maps.google.com/?q=${args.lat},${args.lng}`;
       const message = buildJourneyMessage({
         userName: user.name,
         destinationLabel: journey.destinationLabel,
@@ -275,8 +275,8 @@ export const journeyResolvers = {
       const alert = await createAlert(context.prisma, {
         userId,
         type: "USER_REQUESTED",
-        lat: journey.startLat,
-        lng: journey.startLng,
+        lat: args.lat,
+        lng: args.lng,
         mapLink,
         message,
         journeyId: journey.id,
